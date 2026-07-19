@@ -1,0 +1,20 @@
+#cobra script
+
+Var fillcolor color 255 0 0
+Screen init 400 400
+
+loop
+
+Screen quitControl
+Screen fill fillcolor
+
+If control w
+
+Var fillcolor color 255 0 255
+
+EndIf
+
+Screen update 60
+
+loopEnd
+
