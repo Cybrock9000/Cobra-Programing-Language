@@ -1,20 +1,77 @@
 #cobra script
 
-Var fillcolor color 255 0 0
-Screen init 400 400
+#DebugInfo T
+
+Var fillcolor vec3 255 0 0
+Var boxcolor vec3 0 255 0
+
+image pic set cobra.png 0 0 1 1
+image player set cobra.png 0 0 0.05 0.05
+
+button button set cobra.png 0 0 0.5 0.5
+
+Var px = 0
+Var py = 0
+
+Screen init 500 500
+Screen caption Cobra
 
 loop
 
 Screen quitControl
 Screen fill fillcolor
 
-If control w
+button button draw
 
-Var fillcolor color 255 0 255
-
-EndIf
+button button pressed
+Break
+EndPressed
 
 Screen update 60
 
-loopEnd
+Endloop
+
+
+
+Screen fps T
+
+loop
+
+Screen quitControl
+Screen fill fillcolor
+
+
+If control w
+
+Var py - 1
+
+EndIf
+
+
+If control a
+
+Var px - 1
+
+EndIf
+
+
+If control s
+
+Var py + 1
+
+EndIf
+
+
+If control d
+
+Var px + 1
+
+EndIf
+image pic draw
+image player move px py
+image player draw
+
+Screen update 60
+
+Endloop
 

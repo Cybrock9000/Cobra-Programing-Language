@@ -7,56 +7,51 @@ import sys
 import time
 import math as M
 import os
+from CybrocksLibrary import *
+from colorama import Fore, Back, Style,init
 
 
 
 def main(programfilepath):
+    version = 'Beta V1 7/19/2026'
     
     pg.init()
+    init(autoreset=True)
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print(Fore.BLACK + Back.BLUE + f'Cobra Programing Language {version} By Cy')
     clock = pg.time.Clock()
 
     #var inits 
     vars = {}
-    defs = {}
-    looplines = []    
     programlines = []
+    DebugInfo = False
     k=0
-    j=0
-    defline=0
+    b=False
+    d=0
     looppos = 0
+    FPSEnabled = False
+    caption = ''
+    log = open("logoutput.txt", "a")
 
 
     with open(programfilepath, "r") as program_file: #split lines
         programlines = [line.strip() for line in program_file.readlines()]
         
-    while k < len(programlines): #load defs
 
-        parts = programlines[k].split()
-
-        if parts and parts[0] == "Def":
-            name = parts[1]
-
-            body = []
-
-            k += 1
-
-            while k < len(programlines):
-                if programlines[k] == f"EndDef {name}":
-                    break
-
-                body.append(programlines[k])
-                k += 1
-
-            defs[name] = body
-
-        k += 1
-    k = 0
     
     while k < len(programlines):
         line = programlines[k]
         parts = line.split(" ")
         opcode = parts[0]
         
+
+        if DebugInfo:
+            if d >= 60:
+                d = 0
+                print(Fore.BLUE + str(round(clock.get_fps())) + '       ' + Fore.RED + str(time.strftime('%H:%M:%S')) + '       ' + Fore.GREEN + str(opcode) + '       ' + Fore.CYAN + str(k))
+                Fore.RESET
+            else:
+                d += 1
         
         
 
@@ -71,15 +66,19 @@ def main(programfilepath):
             else:
                 print(text)
             
-        if opcode == "log":
-            with open('logoutput.txt', "a") as log: # log values in  a txt useful for watching multiple values
-                if parts[1] in vars:
-                    v1 = vars[parts[1]]
-                else:
-                    v1 = parts[1]
+        if opcode == "log": # log values in  a txt useful for watching multiple values
+            if parts[1] in vars:
+                v1 = vars[parts[1]]
+            else:
+                v1 = parts[1]
                     
-                log.write(time.strftime('%H:%M:%S:') + ' ' + parts[1] + ' ' + v1)
+            log.write(f"{time.strftime('%H:%M:%S')} {parts[1]} {v1}\n")
                 
+        if opcode == "DebugInfo":
+            if parts[1] == 'T':
+                DebugInfo = True
+            else:
+                DebugInfo = False
 
         if opcode == "loop":
             looppos = k+1
@@ -96,10 +95,14 @@ def main(programfilepath):
         
         if opcode == "If":
             f = False
-            if parts[1] == 'control':
-                if event.type == pg.KEYDOWN:
-                    if pg.key.name(event.key) == parts[2]:
-                        f=True
+            if parts[1] == "control":
+                keys = pg.key.get_pressed()
+
+                key = getattr(pg, "K_" + parts[2].lower(), None)
+
+                if key is not None and keys[key]:
+                    f = True
+
                 if not f:
                     while k < len(programlines) and programlines[k] != "EndIf":
                         k += 1
@@ -178,45 +181,121 @@ def main(programfilepath):
                 vars[parts[1]] = float(vars[parts[1]]) / float(parts[3])
                 
             elif parts[2] == "rnd":
-                vars[parts[1]] = round(vars[parts[1]])
+                vars[parts[1]] = round(float(vars[parts[1]]))
                 
             elif parts[2] == "ceil":
-                vars[parts[1]] =  M.ceil(vars[parts[1]])
+                vars[parts[1]] =  M.ceil(float(vars[parts[1]]))
                 
             elif parts[2] == "flr":
-                vars[parts[1]] =  M.floor(vars[parts[1]])
+                vars[parts[1]] =  M.floor(float(vars[parts[1]]))
                 
-            elif parts[2] == "color":
-                vars[parts[1]] =  tuple((int(parts[3]),int(parts[4]),int(parts[5])))
+            elif parts[2] == "sin":
+                vars[parts[1]] =  M.sin(float(vars[parts[1]]))
                 
+            elif parts[2] == "cos":
+                vars[parts[1]] =  M.cos(float(vars[parts[1]]))
+                
+            elif parts[2] == "tan":
+                vars[parts[1]] =  M.tan(float(vars[parts[1]]))
+                
+            elif parts[2] == "sqrt":
+                vars[parts[1]] =  M.sqrt(float(vars[parts[1]]))
+                
+            elif parts[2] == "pow":
+                vars[parts[1]] =  M.pow(float(vars[parts[1]]),float(vars[parts[3]]))
+                
+            elif parts[2] == "abs":
+                vars[parts[1]] =  abs(float(vars[parts[1]]))
+                
+            elif parts[2] == "dist":
+                vars[parts[1]] =  dist(float(vars[parts[3]]),float(vars[parts[4]]),float(vars[parts[5]]),float(vars[parts[6]]))
+                
+            elif parts[2] == "vec3":
+                vars[parts[1]] =  tuple((float(parts[3]),float(parts[4]),float(parts[5])))
+                
+
+        if opcode == "image":
+            
+            if parts[2] == "set": #image pic set
+                vars[parts[1]] = BetterImage(parts[3], (float(parts[4]),float(parts[5])), float(parts[6]),float(parts[7]))
+                
+            if parts[2] == "draw": #image pic draw
+                vars[parts[1]].draw(window)
+                
+            if parts[2] == "move": #image pic move
+                x = float(vars.get(parts[3], parts[3]))
+                y = float(vars.get(parts[4], parts[4]))
+                vars[parts[1]].move((x,y))
+                
+
+
+        if opcode == "button":
+            
+            if parts[2] == "set":
+                vars[parts[1]] = Button(parts[3], (float(parts[4]),float(parts[5])), float(parts[6]),float(parts[7]))
+                
+            if parts[2] == "draw": #button pic draw
+                vars[parts[1]].draw(window)
+                
+            if parts[2] == "pressed":
+                b = vars[parts[1]].is_pressed()
+
+                    
+                if not b:
+                    while k < len(programlines) and programlines[k] != "EndPressed":
+                        k += 1
+                        
+
+        if opcode == "text":
+            
+            if parts[1] == "init": #text init 20
+                font = pg.font.SysFont('Arial', int(parts[2]))
+                
+            if parts[1] == 'draw': #text draw name string color x y
+                parts[2] = font.render(parts[3],False,parts[4])
+                window.blit(parts[2],(parts[5],parts[6]))
+                    
                 
         #if opcode == "getTimeHMS":
         #    time.strftime('%H:%M:%S:')
         
-        if opcode == "Def":
-            pass
-        if opcode == "EndDef":
-            pass
         
         if opcode == "Screen":
             if parts[1] == "init": # Screen init w h
                 window = pg.display.set_mode((int(parts[2]),int(parts[3])))
+                pg.display.set_caption('Cobra Window')
                 
             if parts[1] == "caption": # Screen caption string
                 pg.display.set_caption(parts[2])
+                caption = parts[2]
+                
                 
             if parts[1] == "pos": # Screen pos x y
-                os.environ['SDL_VIDEO_WINDOW_POS'] = (int(parts[2]),int(parts[3]))
+                os.environ["SDL_VIDEO_WINDOW_POS"] = f"{parts[2]},{parts[3]}"
                 
-            if parts[1] == "box": # Screen box color x y w h
+            if parts[1] == "box":  # Screen box color x y w h
                 color = vars.get(parts[2], parts[2])
-                pg.draw.rect(window, color, [parts[3], parts[4], parts[5], parts[6]], 0)
+
+                x = float(vars.get(parts[3], parts[3]))
+                y = float(vars.get(parts[4], parts[4]))
+                w = float(vars.get(parts[5], parts[5]))
+                h = float(vars.get(parts[6], parts[6]))
+
+                pg.draw.rect(window, color, (x, y, w, h))
         
             if parts[1] == "fill": # Screen fill color
                 color = vars.get(parts[2], parts[2])
                 window.fill(color)
+                
+            if parts[1] == "fps":
+                if parts[2] == "T":
+                    FPSEnabled = True
+                else:
+                    FPSEnabled = False
 
             if parts[1] == "update": # Screen update frames
+                if FPSEnabled == True:
+                    pg.display.set_caption(caption + '     FPS:' + str(round(clock.get_fps())))
                 pg.display.flip()
                 clock.tick(int(parts[2]))
                 
@@ -239,18 +318,6 @@ def main(programfilepath):
 
 
                     
-        
-        if opcode == "DoDef":
-
-            if parts[1] in defs:
-
-                for defline in defs[parts[1]]:
-
-                    parts = defline.split()
-                    opcode = parts[0]
-                    print('do this part')
-
-
 
 
 
