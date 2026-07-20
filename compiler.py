@@ -9,13 +9,15 @@ import math as M
 import os
 from CybrocksLibrary import *
 from colorama import Fore, Back, Style,init
+import random as R
 
 
 
 def main(programfilepath):
-    version = 'Beta V1 7/19/2026'
+    version = 'Beta V1 7/20/2026'
     
     pg.init()
+    pg.mixer.init()
     init(autoreset=True)
     os.system('cls' if os.name == 'nt' else 'clear')
     print(Fore.BLACK + Back.BLUE + f'Cobra Programing Language {version} By Cy')
@@ -23,6 +25,7 @@ def main(programfilepath):
 
     #var inits 
     vars = {}
+    sounds = {}
     programlines = []
     DebugInfo = False
     k=0
@@ -59,14 +62,14 @@ def main(programfilepath):
             k += 1
             continue
         
-        if opcode == "print": #imitates the classic python print
+        if opcode == "Print": #imitates the classic python print
             text = " ".join(parts[1:])
             if text in vars:
                 print(vars[text])
             else:
                 print(text)
             
-        if opcode == "log": # log values in  a txt useful for watching multiple values
+        if opcode == "Log": # log values in  a txt useful for watching multiple values
             if parts[1] in vars:
                 v1 = vars[parts[1]]
             else:
@@ -74,28 +77,28 @@ def main(programfilepath):
                     
             log.write(f"{time.strftime('%H:%M:%S')} {parts[1]} {v1}\n")
                 
-        if opcode == "DebugInfo":
+        if opcode == "DebugInfo": # really useful (hopefully)
             if parts[1] == 'T':
                 DebugInfo = True
             else:
                 DebugInfo = False
 
-        if opcode == "loop":
+        if opcode == "Loop":
             looppos = k+1
             
-        if programlines[k] == 'Endloop':
+        if programlines[k] == 'EndLoop': # have to have ends for loops ifs and control because this language works like reading a list
             loopendpos = k
             k = looppos
 
             continue
                     
         
-        if opcode == "Break":
+        if opcode == "Break": # to get out of the loop
             k = loopendpos+1
         
-        if opcode == "If":
+        if opcode == "If": # a classic
             f = False
-            if parts[1] == "control":
+            if parts[1] == "control": # buttons
                 keys = pg.key.get_pressed()
 
                 key = getattr(pg, "K_" + parts[2].lower(), None)
@@ -109,23 +112,28 @@ def main(programfilepath):
             else:
                 left = vars.get(parts[1], parts[1])
                 right = vars.get(parts[3], parts[3])
-
-                
-                
                     
+
                 if parts[2] == ">":
                     f = float(left) > float(right)
                 elif parts[2] == "=":
-                    f = left == right
+                    f = float(left) == float(right)
                 elif parts[2] == "<":
                     f = float(left) < float(right)
+                elif parts[2] == "!":
+                    f = float(left) != float(right)
+                elif parts[2] == ">=":
+                    f = float(left) >= float(right)
+                elif parts[2] == "<=":
+                    f = float(left) <= float(right)
+
 
                 if not f:
                     while k < len(programlines) and programlines[k] != "EndIf":
                         k += 1
                     
 
-
+        #4 hours a day is a step closer to the framwork 12 (2 hours is fine too)
                 
         if opcode == "Var": # setting a var would look something like "Var i = 20"
             if parts[2] == "=":
@@ -168,7 +176,7 @@ def main(programfilepath):
                     vars[str(parts[1])] = v1
 
                     
-            elif parts[2] == "+":
+            elif parts[2] == "+":                                # math is gud
                 vars[parts[1]] = float(vars[parts[1]]) + float(parts[3])
                 
             elif parts[2] == "-":
@@ -213,8 +221,11 @@ def main(programfilepath):
             elif parts[2] == "vec3":
                 vars[parts[1]] =  tuple((float(parts[3]),float(parts[4]),float(parts[5])))
                 
+            elif parts[2] == "RRNG":
+                vars[parts[1]] = R.randrange(parts[3],parts[4])
+                
 
-        if opcode == "image":
+        if opcode == "Image":
             
             if parts[2] == "set": #image pic set
                 vars[parts[1]] = BetterImage(parts[3], (float(parts[4]),float(parts[5])), float(parts[6]),float(parts[7]))
@@ -229,15 +240,15 @@ def main(programfilepath):
                 
 
 
-        if opcode == "button":
+        if opcode == "Button":
             
-            if parts[2] == "set":
+            if parts[2] == "set": # init the button
                 vars[parts[1]] = Button(parts[3], (float(parts[4]),float(parts[5])), float(parts[6]),float(parts[7]))
                 
             if parts[2] == "draw": #button pic draw
                 vars[parts[1]].draw(window)
                 
-            if parts[2] == "pressed":
+            if parts[2] == "pressed": #check if the button is being pressed
                 b = vars[parts[1]].is_pressed()
 
                     
@@ -246,7 +257,7 @@ def main(programfilepath):
                         k += 1
                         
 
-        if opcode == "text":
+        if opcode == "Text":
             
             if parts[1] == "init": #text init 20
                 font = pg.font.SysFont('Arial', int(parts[2]))
@@ -256,7 +267,7 @@ def main(programfilepath):
                 window.blit(parts[2],(parts[5],parts[6]))
                     
                 
-        #if opcode == "getTimeHMS":
+        #if opcode == "getTimeHMS": #saving this for later
         #    time.strftime('%H:%M:%S:')
         
         
@@ -287,7 +298,7 @@ def main(programfilepath):
                 color = vars.get(parts[2], parts[2])
                 window.fill(color)
                 
-            if parts[1] == "fps":
+            if parts[1] == "fps": # toggle fps in the caption
                 if parts[2] == "T":
                     FPSEnabled = True
                 else:
@@ -299,28 +310,24 @@ def main(programfilepath):
                 pg.display.flip()
                 clock.tick(int(parts[2]))
                 
-            if parts[1] == "quitControl":
+            if parts[1] == "quitControl": # be able to quit
                 events = pg.event.get()
 
                 for event in events:
                     if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
                         pg.quit()
                         return
-
-                    #if event.type == pg.KEYDOWN and event.key == pg.K_a: #<<<save this for later
-                    #    testS.play()
                     
-
-
-
-
-
-
-
-                    
-
-
-
+        if opcode == "Wait":
+            time.sleep(float(parts[1]))
+            
+        if opcode == "Sound":
+            if parts[2] == "load": #Sound name load path
+                sounds[parts[1]] = pg.mixer.Sound(parts[3])
+            if parts[2] == "play":
+                sounds[parts[1]].play()
+                
+                
 
 
 

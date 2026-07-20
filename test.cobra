@@ -5,10 +5,10 @@
 Var fillcolor vec3 255 0 0
 Var boxcolor vec3 0 255 0
 
-image pic set cobra.png 0 0 1 1
-image player set cobra.png 0 0 0.05 0.05
+Image pic set cobra.png 0 0 15 15
+Image player set cobra.png 0 0 1 1
 
-button button set cobra.png 0 0 0.5 0.5
+Button button set cobra.png 218 218 2 2
 
 Var px = 0
 Var py = 0
@@ -16,26 +16,26 @@ Var py = 0
 Screen init 500 500
 Screen caption Cobra
 
-loop
+Loop
 
 Screen quitControl
 Screen fill fillcolor
 
-button button draw
+Button button draw
 
-button button pressed
+Button button pressed
 Break
 EndPressed
 
 Screen update 60
 
-Endloop
+EndLoop
 
 
 
 Screen fps T
 
-loop
+Loop
 
 Screen quitControl
 Screen fill fillcolor
@@ -67,11 +67,11 @@ If control d
 Var px + 1
 
 EndIf
-image pic draw
-image player move px py
-image player draw
+Image pic draw
+Image player move px py
+Image player draw
 
 Screen update 60
 
-Endloop
+EndLoop
 
