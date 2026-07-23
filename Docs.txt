@@ -1,0 +1,154 @@
+The Cobra Programing Language reads its code from top to bottom reacting to the first word in that sentence. 
+If the first word is not in its list of opcodes then it will skip to the next but it is still recomended that you comments start with # to increace proformance.
+
+
+
+
+Example on how it works:
+
+# test comment           < it will see the # and skip to the next, it does this too with spaces and blank lines
+
+Var i = 0                < It sees the Var opcode and looks at the 3rd character and sees the =. so it sets the value of i to the 4th character witch is 0
+
+Loop                     < Loop only takes note of its position
+
+  If i > 100             < Checks to see if i is greater than 100, if its not it wil keep incrementing the pointer by 1 until it sees EndIf
+
+    Break                < Break will exit the loop by setting the pointer to LoopEnd + 1
+
+  EndIf
+
+  Var i + 1              < add 1 to i
+
+EndLoop                  < EndLoop sets the pointer to loop, creating a infinite loop
+
+Print i                  < Prints the Var i
+
+
+
+
+Opcodes:
+
+- Var:
+Var can be set to the current time:
+Var name = getTimeHMS
+
+also supporting getTimeDHMS, getTimeDHM, getTimeDH, getTimeD, getTimeHM, getTimeH, getTimeMS, getTimeM, getTimeS
+
+Var can be set to a value:
+Var name = 0
+
+Var can be set to a string:
+Var name string hello world
+
+Combines everything after string into the string
+
+Var supports a lot of math functions:
+
+Var name + 1
+Var name - 1
+Var name * 1
+Var name / 1
+Var name rnd                < rounds var to nearest number
+Var name ceil               < rounds var up
+Var name flr                < rounds var down
+Var name sin                < trig operations might need a rework but they to the var into a sin/cos/tan version
+Var name cos
+Var name tan
+Var name sqrt               < square roots the var
+Var name pow 2              < powers the var by the 4th number
+Var name abs                < turns the var into its absolute value
+Var name dist x1 y1 x2 y2   < returns the distance of 2 xy positions, curently they have to be vars this will cahnge in the future
+Var name vec3 1 1 1         < creates a tuple, used for color
+Var name rrng 0 10          < picks a random number between the 2 numbers
+
+
+
+- Image:
+Internaly the image kind of works like a var so you cant name a var pic if a image is named pic or then it will overwrite it
+Image has to be set before you can use it:
+Image name set pic.png 0 0 1 1     < sets the picture, x, y, width, height in that order
+
+You can draw it in your loop:
+Image name draw
+
+You can also move an image too:
+Image name mvoe 0 0                < x, y, supports vars too
+
+
+
+- Button:
+Button works very simular to Image:
+Button name set pic.png 0 0 1 1   <x,y,w,h, does not support vars yet
+Button name draw
+
+but you can check its pressed value, example:
+
+Button button pressed
+        do something here
+EndPressed
+
+this works like a If if its not being pressed and will look for the EndPressed
+
+
+
+- Text
+when using text you have to init the text first:
+Text init 20                         < the 20 is text size
+
+then you can draw:
+Text draw name stringVar color 0 0   <x,y, does not support vars for position
+
+
+
+- Screen
+when using the Screen you have to init the Screen first:
+Screen init 800 600           < sets the screen resolution too
+
+you can also set the caption:
+Screen caption string         < does not support string vars yet
+
+you can move the window:
+Screen pos 0 0                <x,y, doesnt work yet
+
+you can fill the screen with a solid color:
+Screen fill colorvar
+
+you can draw simple boxes:
+Screen name color 0 0 1 1     <x,y,w,h, does not support vars yet
+
+you can fill the screen with a solid color:
+Screen fill colorVar
+
+you can enable the fps on the caption bar:
+Screen fps T                  < disabling it would be: Screen fps F
+
+inside your loop you have to update your screen and set the framerate:
+Screen update 60
+
+inside your loop you have to have this in order for the program to run properly:
+Screen quitControl
+
+
+
+- Sleep
+you can pause the program for a number of seconds:
+Sleep 5
+
+
+
+- Sound
+you can load a sound by:
+Sound name load path
+
+and play the like this:
+sound name play
+
+
+
+for debuging stuff you can enable DebugInfo:
+DebugInfo T
+
+or watch a certain Var in the terminal:
+Watch T var      < turning it off is: Watch F
+
