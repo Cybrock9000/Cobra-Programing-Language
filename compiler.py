@@ -14,27 +14,63 @@ import random as R
 
 
 def main(programfilepath):
-    version = 'Beta V1 7/20/2026'
+    symbol = r"""
+                    ........
+        :=====- .-########::...
+    ........-:.-.::-----:.=-====-:.......
+    :-.=-.--------==...:..++++++++++=+++-:
+    :-.--=-:--:-=-----:#*++======%@@%===++-.
+    :-.#=.=+.-*:.===#*+==========%..%=====++:.
+    --..:*:.*=.-=#*+====+*###+===%%@%======+-.
+    :-.#+.=+.:=#+=====+*+....++============+-.
+    :-..:+:.=#+=====++#..===-==+*++#%%+==*%%=.
+    .:=++*:.=======+==.=.      ..:-#.-@++@..@.
+    -=..=-:*======+..-           :@..%:.=..*.
+    .=::.-=+======+=:            .*..=   +=
+    .-.:.-=+======*=.
+    --.:=+======*=.
+        -=#+=======*=.
+        .-+========+=.
+        ..=========+=:.                         ...
+        .-+=======++:                         .-.
+        .-*+========-:.                    ..:...
+        .:-*#*+====++=:.               ..:=#:.
+            .-..#+=======.            ..-=##-:.
+            -=.+*+====+-:..........-+###=:.
+                =..####+++********#####+.-.
+                .=....:+++++++++++.....-.
+                    :--=:::::::::::.=---.
+                        .:::::-:::-
+    """
+
+                                                   
+    version = 'Beta V1 7/21/2026'
     
     pg.init()
     pg.mixer.init()
     init(autoreset=True)
     os.system('cls' if os.name == 'nt' else 'clear')
     print(Fore.BLACK + Back.BLUE + f'Cobra Programing Language {version} By Cy')
+    print(Fore.BLUE + symbol)
     clock = pg.time.Clock()
 
     #var inits 
     vars = {}
+    lists = {}
     sounds = {}
     programlines = []
     DebugInfo = False
+    watching = False
+    waiting = False
     k=0
     b=False
     d=0
+    s=0
     looppos = 0
     FPSEnabled = False
     caption = ''
-    log = open("logoutput.txt", "a")
+    watchingvar = []
+    
 
 
     with open(programfilepath, "r") as program_file: #split lines
@@ -55,21 +91,32 @@ def main(programfilepath):
                 Fore.RESET
             else:
                 d += 1
-        
+                
+        if watching == True:
+            if d >= 60:
+                d = 0
+                for i in range(len(watchingvar)):
+                    print(str(watchingvar[i]) + ': ' + str(vars[watchingvar[i]]))
+            else:
+                d += 1
+                
+        if s > 0:
+            s-=1
+            
         
 
         if opcode == "" or opcode.startswith("#"):
             k += 1
             continue
         
-        if opcode == "Print": #imitates the classic python print
+        elif opcode == "Print": #imitates the classic python print
             text = " ".join(parts[1:])
             if text in vars:
                 print(vars[text])
             else:
                 print(text)
             
-        if opcode == "Log": # log values in  a txt useful for watching multiple values
+        elif opcode == "Log": # log values in  a txt useful for watching multiple values
             if parts[1] in vars:
                 v1 = vars[parts[1]]
             else:
@@ -77,26 +124,38 @@ def main(programfilepath):
                     
             log.write(f"{time.strftime('%H:%M:%S')} {parts[1]} {v1}\n")
                 
-        if opcode == "DebugInfo": # really useful (hopefully)
+
+        elif opcode == "DebugInfo": # really useful (hopefully)
             if parts[1] == 'T':
+                log = open("logoutput.txt", "a")
                 DebugInfo = True
+                watching = False
             else:
                 DebugInfo = False
 
-        if opcode == "Loop":
+        elif opcode == "Watch": # watch a vars value
+            if parts[1] == 'T':
+                DebugInfo = False
+                watching = True
+                watchingvar.append(parts[2])
+            else:
+                watching = False
+                
+
+        elif opcode == "Loop":
             looppos = k+1
             
-        if programlines[k] == 'EndLoop': # have to have ends for loops ifs and control because this language works like reading a list
+        elif programlines[k] == 'EndLoop': # have to have ends for loops ifs and control because this language works like reading a list
             loopendpos = k
             k = looppos
 
             continue
                     
         
-        if opcode == "Break": # to get out of the loop
+        elif opcode == "Break": # to get out of the loop
             k = loopendpos+1
         
-        if opcode == "If": # a classic
+        elif opcode == "If": # a classic
             f = False
             if parts[1] == "control": # buttons
                 keys = pg.key.get_pressed()
@@ -107,6 +166,13 @@ def main(programfilepath):
                     f = True
 
                 if not f:
+                    while k < len(programlines) and programlines[k] != "EndIf":
+                        k += 1
+                                        #0  1      2      3    4     5     6  7  8  9
+            elif parts[1] == "inside": # If inside itemx itemy itemw itemh px py pw ph
+                if (float(vars[parts[6]]) < float(parts[2]) + float(parts[4]) and float(vars[parts[6]]) + float(vars[parts[8]]) > float(parts[2]) and float(vars[parts[7]]) < float(parts[3]) + float(parts[5]) and float(vars[parts[7]]) + float(vars[parts[9]]) > float(parts[3])):
+                    f = True
+                else:
                     while k < len(programlines) and programlines[k] != "EndIf":
                         k += 1
             else:
@@ -135,7 +201,7 @@ def main(programfilepath):
 
         #4 hours a day is a step closer to the framwork 12 (2 hours is fine too)
                 
-        if opcode == "Var": # setting a var would look something like "Var i = 20"
+        elif opcode == "Var": # setting a var would look something like "Var i = 20"
             if parts[2] == "=":
                 if parts[3] == "getTimeHMS":
                     v1 = time.strftime('%H:%M:%S')
@@ -210,7 +276,7 @@ def main(programfilepath):
                 vars[parts[1]] =  M.sqrt(float(vars[parts[1]]))
                 
             elif parts[2] == "pow":
-                vars[parts[1]] =  M.pow(float(vars[parts[1]]),float(vars[parts[3]]))
+                vars[parts[1]] =  M.pow(float(vars[parts[1]]),float(parts[3]))
                 
             elif parts[2] == "abs":
                 vars[parts[1]] =  abs(float(vars[parts[1]]))
@@ -221,11 +287,15 @@ def main(programfilepath):
             elif parts[2] == "vec3":
                 vars[parts[1]] =  tuple((float(parts[3]),float(parts[4]),float(parts[5])))
                 
-            elif parts[2] == "RRNG":
-                vars[parts[1]] = R.randrange(parts[3],parts[4])
+            elif parts[2] == "rrng":
+                vars[parts[1]] = R.randrange(int(parts[3]), int(parts[4]))
+                
+            elif parts[2] == "string":
+                text = " ".join(parts[3:])
+                vars[parts[1]] = str(text)
                 
 
-        if opcode == "Image":
+        elif opcode == "Image":
             
             if parts[2] == "set": #image pic set
                 vars[parts[1]] = BetterImage(parts[3], (float(parts[4]),float(parts[5])), float(parts[6]),float(parts[7]))
@@ -240,7 +310,7 @@ def main(programfilepath):
                 
 
 
-        if opcode == "Button":
+        elif opcode == "Button":
             
             if parts[2] == "set": # init the button
                 vars[parts[1]] = Button(parts[3], (float(parts[4]),float(parts[5])), float(parts[6]),float(parts[7]))
@@ -257,21 +327,21 @@ def main(programfilepath):
                         k += 1
                         
 
-        if opcode == "Text":
+        elif opcode == "Text":
             
             if parts[1] == "init": #text init 20
                 font = pg.font.SysFont('Arial', int(parts[2]))
                 
             if parts[1] == 'draw': #text draw name string color x y
-                parts[2] = font.render(parts[3],False,parts[4])
-                window.blit(parts[2],(parts[5],parts[6]))
+                parts[2] = font.render(vars[parts[3]],False,vars[parts[4]])
+                window.blit(parts[2],(int(parts[5]),int(parts[6])))
                     
                 
         #if opcode == "getTimeHMS": #saving this for later
         #    time.strftime('%H:%M:%S:')
         
         
-        if opcode == "Screen":
+        elif opcode == "Screen":
             if parts[1] == "init": # Screen init w h
                 window = pg.display.set_mode((int(parts[2]),int(parts[3])))
                 pg.display.set_caption('Cobra Window')
@@ -318,10 +388,16 @@ def main(programfilepath):
                         pg.quit()
                         return
                     
-        if opcode == "Wait":
+        elif opcode == "Sleep":
             time.sleep(float(parts[1]))
             
-        if opcode == "Sound":
+        elif opcode == "Wait":
+            if parts[1] == "T":
+                waiting = True
+                s = float(parts[2])
+                
+            
+        elif opcode == "Sound":
             if parts[2] == "load": #Sound name load path
                 sounds[parts[1]] = pg.mixer.Sound(parts[3])
             if parts[2] == "play":
