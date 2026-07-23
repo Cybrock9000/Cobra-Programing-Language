@@ -11,5 +11,12 @@ A Very Simple Programing Language made in Python and Pygame that is made to be e
 
 Documentation coming soon!
 
+# How to use
+- extract zip
+- open any of the 2 folders (depending if you want to see the cmd)
+- drag test.cobra on to compiler.exe (or compiler.py if you have python installed) to see waht this little language can do
+
+The test.cobra has most (if not all) opcodes being used to try to show how to use them all
+
 # Thanks to
 Sunny the Hamster :)
