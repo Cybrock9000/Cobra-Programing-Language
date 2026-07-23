@@ -9,7 +9,7 @@ A Very Simple Programing Language made in Python and Pygame that is made to be e
 - Sound playback using Pygame
 - Debugging tools including variable watching and logging
 
-Documentation coming soon!
+Documentation is in the Docs.txt
 
 # How to use
 - extract zip
