@@ -1,0 +1,110 @@
+#Cobra script
+
+#DebugInfo T
+
+Var fillcolor vec3 255 0 0
+Var textcolor vec3 0 0 0
+Var winboxcolor vec3 255 0 255
+
+Var sometext string Hello World
+Var sometext2 string This is a test using the programing language
+Var sometext3 string Cobra
+Var sometext4 string Thanks for using Cobra
+Text init 30
+#Print sometext
+
+Image pic set cobra.png 0 0 15 15
+Image player set cobra.png 0 0 1 1
+
+Button button set cobra.png 218 218 2 2
+
+Var px = 0
+Var py = 0
+Var pw = 32
+Var ph = 32
+
+Screen init 500 500
+Screen caption Cobra
+
+
+# menu
+Loop
+
+    Screen quitControl
+    Screen fill fillcolor
+
+    Text draw text sometext textcolor 0 0
+    Text draw text sometext2 textcolor 0 35
+    Text draw text sometext3 textcolor 0 70
+
+    Button button draw
+
+    Button button pressed
+        Break
+    EndPressed
+
+    Screen update 60
+
+EndLoop
+
+
+
+Screen fps T
+
+#Watching vars prints to the terminal the vars name and value like  'px: 0'
+#Watch T px
+#Watch T py
+
+
+# game
+Loop
+
+    Screen quitControl
+    Screen fill fillcolor
+
+    If inside 200 200 10 10 px py pw ph
+        Break
+    EndIf
+
+    If control w
+        Var py - 1
+    EndIf
+
+
+    If control a
+        Var px - 1
+    EndIf
+
+
+    If control s
+        Var py + 1
+    EndIf
+
+
+    If control d
+        Var px + 1
+    EndIf
+
+    Image pic draw
+    Image player move px py
+    Image player draw
+
+    Screen box winboxcolor 200 200 10 10
+
+    Screen update 60
+
+EndLoop
+
+
+# win screen
+Loop
+
+    Screen quitControl
+    Screen fill fillcolor
+
+    Text draw text sometext4 textcolor 0 0
+
+    Screen update 60
+
+EndLoop
+
